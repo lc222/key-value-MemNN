@@ -57,7 +57,7 @@ class KVMemNN():
 
         with tf.name_scope("output"):
             self.out = self.q[-1]
-            logits = tf.matmul(self.out, self.B) + self.bais #[None, entity_size]
+            logits = tf.nn.dropout(tf.matmul(self.out, self.B) + self.bais, keep_prob=self.keep_dropout) #[None, entity_size]
 
         with tf.name_scope("loss"):
             cross_entropy = tf.reduce_mean(
@@ -82,7 +82,7 @@ class KVMemNN():
         self.answer = tf.placeholder(tf.float32, [None, self.entity_size], name='answer')
         self.key = tf.placeholder(tf.int32, [None, self.memory_slot, 2], name='key_memory')
         self.value = tf.placeholder(tf.int32, [None, self.memory_slot], name='value_memory')
-        #self.keep_dropout = tf.placeholder(tf.float32, name='keep_dropout')
+        self.keep_dropout = tf.placeholder(tf.float32, name='keep_dropout')
 
         self.A = tf.get_variable('A', [self.vocab_size, self.embedding_size], initializer=tf.contrib.layers.xavier_initializer())
         self.B = tf.get_variable('B', [self.embedding_size, self.entity_size], initializer=tf.contrib.layers.xavier_initializer())

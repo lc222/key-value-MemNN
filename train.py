@@ -16,7 +16,7 @@ flags.DEFINE_integer("max_slots", 300, "maximum slots in the memory")
 flags.DEFINE_integer("hops", 2, "Number of hops in the Memory Network.")
 flags.DEFINE_integer("epochs", 100, "Number of epochs to train for.")
 flags.DEFINE_integer("embedding_size", 200, "Embedding size for embedding matrices.")
-#flags.DEFINE_integer("dropout_memory", 1.0, "keep probability for keeping a memory slot")
+flags.DEFINE_integer("dropout_memory", 0.5, "keep probability for keeping a memory slot")
 
 flags.DEFINE_string("checkpoint_dir", "checkpoints", "checkpoint directory [checkpoints]")
 flags.DEFINE_integer("evaluate_every", 1000, "Evaluate and print results every x epochs")
@@ -107,7 +107,8 @@ with tf.Session() as sess:
             KV_MemNN.query: batch_data['question'],
             KV_MemNN.answer: batch_data['answer'],
             KV_MemNN.key: batch_data['keys'],
-            KV_MemNN.value: batch_data['values']
+            KV_MemNN.value: batch_data['values'],
+            KV_MemNN.keep_dropout:0.8
         }
         #labels = tf.constant(batch_dict['answer'], tf.int64)
         _, step, summaries, loss, accuracy = sess.run(
@@ -123,8 +124,8 @@ with tf.Session() as sess:
             KV_MemNN.query: batch_data['question'],
             KV_MemNN.answer: batch_data['answer'],
             KV_MemNN.key: batch_data['keys'],
-            KV_MemNN.value: batch_data['values']
-            #cnn.dropout_keep_prob: 1.0
+            KV_MemNN.value: batch_data['values'],
+            KV_MemNN.keep_dropout: 1.0
         }
         #labels = tf.constant(batch_dict['answer'], tf.int64)
         step, summaries, loss, accuracy = sess.run(

@@ -100,10 +100,15 @@ def prepare_batch(batch_examples, maxlen, batch_size, entity_size):
     batch_dict['keys'], batch_dict['values'] = gather_key_and_value_from_batch(batch_examples, maxlen, batch_size)
     labels = []
     for i in xrange(batch_size):
-        for ans in batch_examples[i]['ans_entities']:
-            ans2arr = [0]*entity_size
-            ans2arr[ans] = 1
-            labels.append(np.array(ans2arr))
+        #只添加第一个答案作为label
+        ans2arr = [0]*entity_size
+        ans2arr[batch_examples[i]['ans_entities'][0]] = 1
+        labels.append(np.array(ans2arr))
+
+        # for ans in batch_examples[i]['ans_entities']:
+        #     ans2arr = [0]*entity_size
+        #     ans2arr[ans] = 1
+        #     labels.append(np.array(ans2arr))
     batch_dict['answer'] = np.array(labels)
     return batch_dict
 
@@ -120,8 +125,10 @@ def gather_single_column_from_batch(batch_examples, maxlen, column_name, batch_s
     for i in xrange(batch_size):
         num_ans = len(batch_examples[i]['ans_entities'])
         example = pad(batch_examples[i][column_name], maxlen[column_name])
-        for j in xrange(num_ans):
-            column.append(np.array(example))
+        # for j in xrange(num_ans):
+        #     column.append(np.array(example))
+        #只添加第一个答案作为训练数据，以免出现答案之间的互斥现象
+        column.append(example)
     return np.array(column)
 
 def gather_key_and_value_from_batch(batch_examples, maxlen, batch_size):
@@ -154,8 +161,12 @@ def gather_key_and_value_from_batch(batch_examples, maxlen, batch_size):
             memories_key.append(np.array([src[memory_index], rel[memory_index]]))
             memories_val.append(tar[memory_index])
         
-        num_ans = len(batch_examples[i]['ans_entities'])
-        for j in xrange(num_ans):
-            column_key.append(np.array(memories_key))
-            column_val.append(np.array(memories_val))
+        # num_ans = len(batch_examples[i]['ans_entities'])
+        # for j in xrange(num_ans):
+        #     column_key.append(np.array(memories_key))
+        #     column_val.append(np.array(memories_val))
+
+        #只添加第一个答案对应的数据，以防止出现答案之间的互斥现象
+        column_key.append(np.array(memories_key))
+        column_val.append(np.array(memories_val))
     return np.array(column_key), np.array(column_val)
