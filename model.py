@@ -52,7 +52,7 @@ class KVMemNN():
                 o = tf.reduce_sum(value_temp*p_temp, axis=2) #[None, embedding_szie]
 
                 R_temp = self.Rs[i]
-                q_next = tf.matmul(self.q[-1], R_temp) + o
+                q_next = tf.matmul(self.q[-1] + o,R_temp)
                 self.q.append(q_next)
 
         with tf.name_scope("output"):
